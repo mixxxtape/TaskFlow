@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="TaskFlow.Tests/TaskFlow.Tests.csproj" />
+  <Project Path="TaskFlow.Web/TaskFlow.Web.csproj" />
+</Solution>
