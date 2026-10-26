@@ -1,0 +1,9 @@
+@model AppUser
+@{ ViewData["Title"] = "Новий користувач"; }
+<h1 class="h3">Новий користувач</h1>
+<form asp-action="Create" method="post">
+    <partial name="_Form" />
+    <button class="btn btn-primary">Зберегти</button>
+    <a asp-action="Index" class="btn btn-link">Скасувати</a>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

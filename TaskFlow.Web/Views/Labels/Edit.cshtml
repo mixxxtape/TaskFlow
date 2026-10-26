@@ -1,0 +1,10 @@
+@model Label
+@{ ViewData["Title"] = "Редагування мітки"; }
+<h1 class="h3">Редагування мітки</h1>
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <partial name="_Form" />
+    <button class="btn btn-primary">Зберегти</button>
+    <a asp-action="Index" class="btn btn-link">Скасувати</a>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

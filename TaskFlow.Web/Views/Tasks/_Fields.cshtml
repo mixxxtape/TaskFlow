@@ -1,0 +1,61 @@
+@model TaskFormViewModel
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="mb-3">
+    <label asp-for="Title" class="form-label"></label>
+    <input asp-for="Title" class="form-control" />
+    <span asp-validation-for="Title" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Description" class="form-label"></label>
+    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+    <span asp-validation-for="Description" class="text-danger"></span>
+</div>
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label asp-for="ProjectId" class="form-label"></label>
+        <select asp-for="ProjectId" class="form-select" asp-items="(SelectList)ViewBag.Projects">
+            <option value="0">— оберіть проєкт —</option>
+        </select>
+        <span asp-validation-for="ProjectId" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="AssigneeId" class="form-label"></label>
+        <select asp-for="AssigneeId" class="form-select" asp-items="(SelectList)ViewBag.Users">
+            <option value="">— без виконавця —</option>
+        </select>
+        <span asp-validation-for="AssigneeId" class="text-danger"></span>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <label asp-for="Status" class="form-label"></label>
+        <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<ItemStatus>()"></select>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="Priority" class="form-label"></label>
+        <select asp-for="Priority" class="form-select" asp-items="Html.GetEnumSelectList<Priority>()"></select>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="DueDate" class="form-label"></label>
+        <input asp-for="DueDate" type="date" class="form-control" />
+        <span asp-validation-for="DueDate" class="text-danger"></span>
+    </div>
+</div>
+<div class="mb-3">
+    <label asp-for="LabelIds" class="form-label"></label>
+    <select asp-for="LabelIds" class="form-select" multiple asp-items="(MultiSelectList)ViewBag.Labels"></select>
+    <div class="form-text">Ctrl/Cmd + клік, щоб обрати кілька.</div>
+</div>
+<div class="mb-3">
+    <label asp-for="Attachment" class="form-label"></label>
+    <input asp-for="Attachment" type="file" class="form-control" />
+    <span asp-validation-for="Attachment" class="text-danger"></span>
+    @if (!string.IsNullOrEmpty(Model.ExistingAttachmentUrl))
+    {
+        <div class="form-text">
+            Поточний файл: <a href="@Model.ExistingAttachmentUrl" target="_blank">відкрити</a>.
+            Новий файл замінить його.
+        </div>
+    }
+    <div class="form-text">pdf, png, jpg, gif, txt, docx, xlsx, zip — до 5 МБ.</div>
+</div>

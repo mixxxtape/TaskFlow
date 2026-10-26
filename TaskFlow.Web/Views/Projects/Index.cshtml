@@ -1,0 +1,30 @@
+@model List<Project>
+@{ ViewData["Title"] = "Проєкти"; }
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 m-0">Проєкти</h1>
+    <a asp-action="Create" class="btn btn-primary">Новий проєкт</a>
+</div>
+@if (!Model.Any())
+{
+    <p class="text-muted">Проєктів ще немає.</p>
+}
+else
+{
+    <table class="table table-hover align-middle">
+        <thead><tr><th>Назва</th><th>Завдань</th><th>Створено</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td><a asp-action="Details" asp-route-id="@p.Id">@p.Name</a></td>
+                <td>@p.Tasks.Count</td>
+                <td>@p.CreatedAt.ToString("dd.MM.yyyy")</td>
+                <td class="text-end">
+                    <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-outline-secondary">Редагувати</a>
+                    <a asp-action="Delete" asp-route-id="@p.Id" class="btn btn-sm btn-outline-danger">Видалити</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

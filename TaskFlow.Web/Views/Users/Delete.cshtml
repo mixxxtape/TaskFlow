@@ -1,0 +1,9 @@
+@model AppUser
+@{ ViewData["Title"] = "Видалення користувача"; }
+<h1 class="h3">Видалити користувача?</h1>
+<div class="alert alert-danger">Користувача «@Model.Name» буде видалено; його коментарі видаляться, а завдання залишаться без виконавця.</div>
+<form asp-action="Delete" method="post">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <button class="btn btn-danger">Так, видалити</button>
+    <a asp-action="Index" class="btn btn-link">Скасувати</a>
+</form>

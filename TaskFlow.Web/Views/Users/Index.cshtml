@@ -1,0 +1,21 @@
+@model List<AppUser>
+@{ ViewData["Title"] = "Користувачі"; }
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 m-0">Користувачі</h1>
+    <a asp-action="Create" class="btn btn-primary">Новий користувач</a>
+</div>
+<table class="table table-hover align-middle">
+    <thead><tr><th>Ім'я</th><th>Email</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var u in Model)
+    {
+        <tr>
+            <td>@u.Name</td><td>@u.Email</td>
+            <td class="text-end">
+                <a asp-action="Edit" asp-route-id="@u.Id" class="btn btn-sm btn-outline-secondary">Редагувати</a>
+                <a asp-action="Delete" asp-route-id="@u.Id" class="btn btn-sm btn-outline-danger">Видалити</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

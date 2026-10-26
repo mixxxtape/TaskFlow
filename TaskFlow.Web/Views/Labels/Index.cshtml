@@ -1,0 +1,22 @@
+@model List<Label>
+@{ ViewData["Title"] = "Мітки"; }
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 m-0">Мітки</h1>
+    <a asp-action="Create" class="btn btn-primary">Нова мітка</a>
+</div>
+<table class="table table-hover align-middle">
+    <thead><tr><th>Мітка</th><th>Колір</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var l in Model)
+    {
+        <tr>
+            <td><span class="badge" style="background-color:@l.Color">@l.Name</span></td>
+            <td>@l.Color</td>
+            <td class="text-end">
+                <a asp-action="Edit" asp-route-id="@l.Id" class="btn btn-sm btn-outline-secondary">Редагувати</a>
+                <a asp-action="Delete" asp-route-id="@l.Id" class="btn btn-sm btn-outline-danger">Видалити</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

@@ -1,0 +1,11 @@
+@model TaskFormViewModel
+@{ ViewData["Title"] = "Редагування завдання"; }
+<h1 class="h3">Редагування завдання</h1>
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ExistingAttachmentUrl" />
+    <partial name="_Fields" model="Model" />
+    <button class="btn btn-primary">Зберегти</button>
+    <a asp-action="Index" class="btn btn-link">Скасувати</a>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

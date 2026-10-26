@@ -1,0 +1,9 @@
+@model Label
+@{ ViewData["Title"] = "Видалення мітки"; }
+<h1 class="h3">Видалити мітку?</h1>
+<div class="alert alert-danger">Мітку «@Model.Name» буде знято з усіх завдань і видалено.</div>
+<form asp-action="Delete" method="post">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <button class="btn btn-danger">Так, видалити</button>
+    <a asp-action="Index" class="btn btn-link">Скасувати</a>
+</form>

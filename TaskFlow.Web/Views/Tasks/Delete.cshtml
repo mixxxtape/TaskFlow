@@ -1,0 +1,9 @@
+@model TaskItem
+@{ ViewData["Title"] = "Видалення завдання"; }
+<h1 class="h3">Видалити завдання?</h1>
+<div class="alert alert-danger">Завдання «@Model.Title» (проєкт «@Model.Project?.Name») буде видалено разом із вкладенням і коментарями.</div>
+<form asp-action="Delete" method="post">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <button class="btn btn-danger">Так, видалити</button>
+    <a asp-action="Index" class="btn btn-link">Скасувати</a>
+</form>

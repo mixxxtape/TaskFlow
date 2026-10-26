@@ -1,0 +1,33 @@
+@model Project
+@{ ViewData["Title"] = Model.Name; }
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h1 class="h3 m-0">@Model.Name</h1>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Редагувати</a>
+        <a asp-controller="Tasks" asp-action="Create" asp-route-projectId="@Model.Id" class="btn btn-primary">Додати завдання</a>
+    </div>
+</div>
+<p class="text-muted">Створено @Model.CreatedAt.ToString("dd.MM.yyyy")</p>
+<p>@Model.Description</p>
+<h2 class="h5 mt-4">Завдання (@Model.Tasks.Count)</h2>
+@if (!Model.Tasks.Any())
+{
+    <p class="text-muted">У проєкті ще немає завдань.</p>
+}
+else
+{
+    <table class="table table-sm align-middle">
+        <thead><tr><th>Назва</th><th>Статус</th><th>Виконавець</th></tr></thead>
+        <tbody>
+        @foreach (var t in Model.Tasks.OrderBy(t => t.Status))
+        {
+            <tr>
+                <td><a asp-controller="Tasks" asp-action="Details" asp-route-id="@t.Id">@t.Title</a></td>
+                <td>@Html.DisplayFor(_ => t.Status)</td>
+                <td>@(t.Assignee?.Name ?? "—")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+<a asp-action="Index">← До списку</a>
