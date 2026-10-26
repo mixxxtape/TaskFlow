@@ -178,9 +178,9 @@ public class TasksController : Controller
     private async Task ValidateReferences(TaskFormViewModel vm)
     {
         if (vm.ProjectId > 0 && !await _db.Projects.AnyAsync(p => p.Id == vm.ProjectId))
-            ModelState.AddModelError(nameof(vm.ProjectId), "Project not found");
+            ModelState.AddModelError(nameof(vm.ProjectId), "Проєкт не знайдено");
         if (vm.AssigneeId.HasValue && !await _db.Users.AnyAsync(u => u.Id == vm.AssigneeId.Value))
-            ModelState.AddModelError(nameof(vm.AssigneeId), "User not found");
+            ModelState.AddModelError(nameof(vm.AssigneeId), "Користувача не знайдено");
     }
 
     private static void Apply(TaskItem t, TaskFormViewModel vm)
