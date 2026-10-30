@@ -2,11 +2,12 @@ using System.Net;
 
 namespace TaskFlow.Tests;
 
-public class SmokeTests : IClassFixture<CustomWebApplicationFactory>
+public class FirstTest : IClassFixture<CustomWebApplicationFactory>
 {
     private readonly CustomWebApplicationFactory _factory;
-    public SmokeTests(CustomWebApplicationFactory f) => _factory = f;
+    public FirstTest(CustomWebApplicationFactory f) => _factory = f;
 
+    //перевірка, що основні сторінки сайту відкриваються і повертають статус 200
     [Theory]
     [InlineData("/")]
     [InlineData("/Projects")]
@@ -22,6 +23,7 @@ public class SmokeTests : IClassFixture<CustomWebApplicationFactory>
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
+    //перевіряю, що сторінки з неіснуючими ID повертають статус 404
     [Theory]
     [InlineData("/Projects/Details/999")]
     [InlineData("/Tasks/Details/999")]

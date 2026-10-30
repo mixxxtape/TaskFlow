@@ -6,6 +6,8 @@ namespace TaskFlow.Tests;
 
 public class ProjectsControllerTests
 {
+
+    //перевірка, що проєкт із правильними даними зберігається, після чого відбувається перенаправлення
     [Fact]
     public async Task Create_ValidProject_IsSavedAndRedirects()
     {
@@ -19,6 +21,8 @@ public class ProjectsControllerTests
         Assert.Equal("Alpha", saved.Name);
     }
 
+
+    //перевірка, що якщо модель невалідна, проєкт не зберігається, а користувач залишається на сторінці форми
     [Fact]
     public async Task Create_InvalidModel_ReturnsViewAndDoesNotSave()
     {
@@ -32,6 +36,8 @@ public class ProjectsControllerTests
         Assert.Empty(db.Context.Projects);
     }
 
+
+    //перевірка, що назву й опис проєкту можна змінити, але дата його створення залишається попередньою
     [Fact]
     public async Task Edit_UpdatesNameAndDescription_ButKeepsCreatedAt()
     {
@@ -52,6 +58,8 @@ public class ProjectsControllerTests
         Assert.Equal(created, reloaded.CreatedAt);
     }
 
+
+    //перевірка, що якщо ID у запиті та моделі не збігаються, редагування не виконується
     [Fact]
     public async Task Edit_IdMismatch_ReturnsNotFound()
     {
@@ -63,6 +71,8 @@ public class ProjectsControllerTests
         Assert.IsType<NotFoundResult>(result);
     }
 
+
+    //перевірка, що при видаленні проєкту видаляються і його завдання, а файли, прикріплені до цих завдань, передаються на видалення
     [Fact]
     public async Task Delete_RemovesProjectItsTasksAndTheirFiles()
     {
@@ -84,6 +94,7 @@ public class ProjectsControllerTests
         Assert.Contains("/uploads/a.pdf", storage.Deleted);
     }
 
+    //перевірка, що при пошуку проєкту з неіснуючим ID повертається NotFound
     [Fact]
     public async Task Details_UnknownId_ReturnsNotFound()
     {

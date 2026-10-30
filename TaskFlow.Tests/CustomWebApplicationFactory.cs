@@ -7,11 +7,12 @@ using TaskFlow.Web.Data;
 
 namespace TaskFlow.Tests;
 
-/// <summary>Запускає застосунок, але з SQLite in-memory замість PostgreSQL.</summary>
+//створення тестової версії вебзастосунку, в якій використовується SQLite замість основної бази даних
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
     private readonly SqliteConnection _connection = new("DataSource=:memory:");
 
+    //налаштування тестового середовища: заміна підключення до бази даних на SQLite і створення таблиці перед виконанням тестів
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         _connection.Open();
@@ -30,7 +31,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.EnsureCreated();
         });
     }
-
+    //закриття тестового підключення до бази даних після завершення роботи фабрики
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
