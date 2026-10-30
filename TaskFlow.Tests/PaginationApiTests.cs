@@ -7,7 +7,7 @@ using TaskFlow.Web.Models;
 
 namespace TaskFlow.Tests;
 
-// Тести перевірки пагінації REST API проєктів.
+//тести перевірки пагінації REST API проєктів
 public class PaginationApiTests : IClassFixture<CustomWebApplicationFactory>
 {
     private readonly CustomWebApplicationFactory _factory;
@@ -19,7 +19,7 @@ public class PaginationApiTests : IClassFixture<CustomWebApplicationFactory>
         _client = f.CreateClient();
     }
 
-    // Додає тестові проєкти до бази даних.
+    // додає тестові проєкти до бази даних
     private void Seed(int count)
     {
         using var scope = _factory.Services.CreateScope();
@@ -33,7 +33,7 @@ public class PaginationApiTests : IClassFixture<CustomWebApplicationFactory>
         db.SaveChanges();
     }
 
-    // Перевіряє перехід між сторінками та відсутність повторів елементів.
+    //перевіряє перехід між сторінками та відсутність повторів елементів
     [Fact]
     public async Task FollowingNextLink_ReturnsAllItemsOnce_AndLastPageHasNoNextLink()
     {
@@ -68,7 +68,7 @@ public class PaginationApiTests : IClassFixture<CustomWebApplicationFactory>
         Assert.Equal(names.OrderBy(n => n).ToList(), names);
     }
 
-    // Перевіряє отримання потрібної частини списку за параметрами skip і limit.
+    //перевіряє отримання потрібної частини списку за параметрами skip і limit
     [Fact]
     public async Task SkipAndLimit_SelectCorrectSlice()
     {
@@ -82,7 +82,7 @@ public class PaginationApiTests : IClassFixture<CustomWebApplicationFactory>
         Assert.Equal(JsonValueKind.Null, page.GetProperty("nextLink").ValueKind);
     }
 
-    // Перевіряє використання стандартного значення limit = 20.
+    //перевіряє використання стандартного значення limit = 20
     [Fact]
     public async Task DefaultLimit_Is20()
     {
@@ -96,7 +96,7 @@ public class PaginationApiTests : IClassFixture<CustomWebApplicationFactory>
         Assert.NotEqual(JsonValueKind.Null, page.GetProperty("nextLink").ValueKind);
     }
 
-    // Перевіряє відхилення некоректних параметрів пагінації.
+    // перевіряє відхилення некоректних параметрів пагінації
     [Theory]
     [InlineData("skip=-1")]
     [InlineData("limit=0")]
@@ -105,7 +105,7 @@ public class PaginationApiTests : IClassFixture<CustomWebApplicationFactory>
     {
         var r = await _client.GetAsync("/api/projects?" + query);
 
-        // Для некоректних параметрів API має повертати Bad Request (400).
+        // для некоректних параметрів API має повертати Bad Request (400)
         Assert.Equal(HttpStatusCode.BadRequest, r.StatusCode);
     }
 }
