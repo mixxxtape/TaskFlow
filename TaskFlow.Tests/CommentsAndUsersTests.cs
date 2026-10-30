@@ -7,6 +7,8 @@ namespace TaskFlow.Tests;
 
 public class CommentsAndUsersTests
 {
+
+    //створення тестового користувача і завдання, щоб використовувати їх в інших тестах
     private static async Task<(TaskItem task, AppUser user)> Seed(TestDb db)
     {
         var user = new AppUser { Name = "Ann", Email = "ann@x.com" };
@@ -16,6 +18,8 @@ public class CommentsAndUsersTests
         return (task, user);
     }
 
+
+    //перевірка, що комент створюється, а зайві пробіли на початку і в кінці прибираються
     [Fact]
     public async Task Comment_Create_AddsComment()
     {
@@ -31,6 +35,8 @@ public class CommentsAndUsersTests
         Assert.Equal(user.Id, comment.AuthorId);
     }
 
+
+    //перевірка, що порожній комент не додається в базу даних
     [Fact]
     public async Task Comment_Create_EmptyText_IsIgnored()
     {
@@ -43,6 +49,8 @@ public class CommentsAndUsersTests
         Assert.Empty(db.Context.Comments);
     }
 
+
+    //перевірка, що при спробі додати коментар до неіснуючого завдання повертається NotFound
     [Fact]
     public async Task Comment_Create_UnknownTask_ReturnsNotFound()
     {
@@ -52,6 +60,7 @@ public class CommentsAndUsersTests
         Assert.IsType<NotFoundResult>(await controller.Create(999, 1, "x"));
     }
 
+    //перевірка, що після видалення коментар зникає з бази даних
     [Fact]
     public async Task Comment_Delete_RemovesComment()
     {
@@ -67,6 +76,8 @@ public class CommentsAndUsersTests
         Assert.Empty(db.Context.Comments);
     }
 
+
+    //перевірка, що користувача з email, який вже є в базі, не можна створити повторно
     [Fact]
     public async Task User_Create_DuplicateEmail_IsRejected()
     {
@@ -82,6 +93,8 @@ public class CommentsAndUsersTests
         Assert.Equal(1, await db.Context.Users.CountAsync());
     }
 
+
+    //перевірка, що після видалення користувача його завдання залишаються, але призначений виконавець у них очищується
     [Fact]
     public async Task User_Delete_KeepsTasksButClearsAssignee()
     {
@@ -99,6 +112,8 @@ public class CommentsAndUsersTests
         Assert.Empty(db.Context.Users);
     }
 
+
+    //перевірка, що при видаленні мітки саме завдання не видаляється, а зв'язок із цією міткою зникає
     [Fact]
     public async Task Label_Delete_RemovesLabelButNotTask()
     {

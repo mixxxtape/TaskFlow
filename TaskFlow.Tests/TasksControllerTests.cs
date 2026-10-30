@@ -8,6 +8,7 @@ namespace TaskFlow.Tests;
 
 public class TasksControllerTests
 {
+    //створенняя тестового проєкту, який можна використовувати в тестах завдань
     private static async Task<Project> SeedProject(TestDb db)
     {
         var p = new Project { Name = "P" };
@@ -16,6 +17,8 @@ public class TasksControllerTests
         return p;
     }
 
+
+    //перевірка, що завдання з правильними даними зберігається, а проєкт, виконавець і статус записуються правильно
     [Fact]
     public async Task Create_ValidTask_IsSavedWithRelations()
     {
@@ -32,7 +35,7 @@ public class TasksControllerTests
             ProjectId = project.Id,
             AssigneeId = user.Id,
             Status = ItemStatus.InProgress,
-            DueDate = new DateTime(2026, 11, 1) // Kind = Unspecified, як у формі
+            DueDate = new DateTime(2026, 11, 1) 
         });
 
         Assert.IsType<RedirectToActionResult>(result);
@@ -44,6 +47,8 @@ public class TasksControllerTests
         Assert.Equal(DateTimeKind.Utc, task.DueDate!.Value.Kind);
     }
 
+
+    //перевіряю, що при створенні завдання прикріплений файл зберігається, а його посилання записується в завдання
     [Fact]
     public async Task Create_WithAttachment_StoresFileUrl()
     {
@@ -64,6 +69,8 @@ public class TasksControllerTests
         Assert.Single(storage.Saved);
     }
 
+
+    //перевірка, що до завдання можна прикріпити мітку і зв'язок між ними зберігається в базі даних
     [Fact]
     public async Task Create_WithLabels_LinksManyToMany()
     {
@@ -86,6 +93,8 @@ public class TasksControllerTests
         Assert.Equal("bug", Assert.Single(task.Labels).Name);
     }
 
+
+    //перевірка, що завдання не створюється, якщо вказаний проєкт не існує.
     [Fact]
     public async Task Create_UnknownProject_ReturnsViewAndDoesNotSave()
     {
@@ -98,6 +107,8 @@ public class TasksControllerTests
         Assert.Empty(db.Context.Tasks);
     }
 
+
+    //перевірка, що завдання без назви не зберігається
     [Fact]
     public async Task Create_EmptyTitle_ReturnsViewAndDoesNotSave()
     {
@@ -112,6 +123,8 @@ public class TasksControllerTests
         Assert.Empty(db.Context.Tasks);
     }
 
+
+    //перевірка, що новий файл замінює старий, а попередній файл передається на видалення
     [Fact]
     public async Task Edit_NewAttachment_ReplacesAndDeletesOldFile()
     {
@@ -138,6 +151,8 @@ public class TasksControllerTests
         Assert.Contains("/uploads/old.pdf", storage.Deleted);
     }
 
+
+    //перевірка, що якщо новий файл не прикріпили, попереднє вкладення залишається без змін
     [Fact]
     public async Task Edit_WithoutNewFile_KeepsExistingAttachment()
     {
@@ -156,6 +171,8 @@ public class TasksControllerTests
         Assert.Empty(storage.Deleted);
     }
 
+
+    //перевірка, що після редагування завдання набір його міток оновлюється
     [Fact]
     public async Task Edit_ReplacesLabelSet()
     {
@@ -179,6 +196,8 @@ public class TasksControllerTests
         Assert.Equal("b", Assert.Single(reloaded.Labels).Name);
     }
 
+
+    //перевірка, що при видаленні завдання воно зникає з бази, а прикріплений файл передається на видалення
     [Fact]
     public async Task Delete_RemovesTaskAndItsFile()
     {
@@ -196,6 +215,8 @@ public class TasksControllerTests
         Assert.Contains("/uploads/x.pdf", storage.Deleted);
     }
 
+
+    //перевірка фільтрацію завдань за статусом і пошуком за назвою, а також одночасне використання обох фільтрів
     [Fact]
     public async Task Index_FiltersByStatusAndSearch()
     {

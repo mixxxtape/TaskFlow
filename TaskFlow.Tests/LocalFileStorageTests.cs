@@ -11,6 +11,7 @@ public sealed class LocalFileStorageTests : IDisposable
         if (Directory.Exists(_root)) Directory.Delete(_root, true);
     }
 
+    //перевірка, що дозволений файл зберігається, отримує посилання і має правильне розширення
     [Fact]
     public async Task Save_AllowedFile_WritesFileAndReturnsUrl()
     {
@@ -23,6 +24,8 @@ public sealed class LocalFileStorageTests : IDisposable
         Assert.True(File.Exists(Path.Combine(_root, "uploads", Path.GetFileName(url))));
     }
 
+
+    //перевірка, що файли з недозволеними розширеннями не зберігаються
     [Theory]
     [InlineData("virus.exe")]
     [InlineData("script.js")]
@@ -34,6 +37,8 @@ public sealed class LocalFileStorageTests : IDisposable
         await Assert.ThrowsAsync<InvalidOperationException>(() => storage.SaveAsync(Files.Fake(name)));
     }
 
+
+    //перевірка, що збережений файл можна видалити, а сторонні посилання та null не призводять до видалення чужих файлів
     [Fact]
     public async Task Delete_RemovesFile_AndIgnoresForeignUrls()
     {
