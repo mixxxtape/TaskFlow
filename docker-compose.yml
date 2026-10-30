@@ -1,3 +1,4 @@
+
 services:
   db:
     image: postgres:16
@@ -9,5 +10,27 @@ services:
       - "5433:5432"
     volumes:
       - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskflow -d taskflow"]
+      interval: 3s
+      timeout: 3s
+      retries: 15
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__Default: "Host=db;Port=5432;Database=taskflow;Username=taskflow;Password=dasha2007"
+      MigrateOnStartup: "true"
+    ports:
+      - "8080:8080"
+    volumes:
+      - uploads:/app/wwwroot/uploads
+
 volumes:
   dbdata:
+  uploads:
