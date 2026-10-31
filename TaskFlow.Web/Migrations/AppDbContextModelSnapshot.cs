@@ -17,7 +17,7 @@ namespace TaskFlow.Web.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.32")
+                .HasAnnotation("ProductVersion", "8.0.33")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -57,6 +57,9 @@ namespace TaskFlow.Web.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });
@@ -150,7 +153,8 @@ namespace TaskFlow.Web.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
 
                     b.Property<DateTime?>("DueDate")
                         .HasColumnType("timestamp with time zone");
@@ -166,7 +170,8 @@ namespace TaskFlow.Web.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
 
@@ -215,7 +220,8 @@ namespace TaskFlow.Web.Migrations
                 {
                     b.HasOne("TaskFlow.Web.Models.AppUser", "Assignee")
                         .WithMany()
-                        .HasForeignKey("AssigneeId");
+                        .HasForeignKey("AssigneeId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("TaskFlow.Web.Models.Project", "Project")
                         .WithMany("Tasks")
