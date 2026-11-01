@@ -1,0 +1,23 @@
+@{ ViewData["Title"] = "Статистика"; }
+<h1 class="h3 mb-4">Статистика</h1>
+<div id="stats-root" data-url="@Url.Action("Data", "Stats")">
+    <p id="stats-total" class="text-muted">Завантаження…</p>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <h2 class="h6">Завдання за статусами</h2>
+            <canvas id="chartStatus" role="img" aria-label="Діаграма завдань за статусами"></canvas>
+        </div>
+        <div class="col-md-8">
+            <h2 class="h6">Завдання за проєктами (топ-10)</h2>
+            <canvas id="chartProject" role="img" aria-label="Діаграма завдань за проєктами"></canvas>
+        </div>
+        <div class="col-12">
+            <h2 class="h6">Завдання за виконавцями</h2>
+            <canvas id="chartAssignee" role="img" aria-label="Діаграма завдань за виконавцями"></canvas>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="~/js/stats.js" asp-append-version="true"></script>
+}

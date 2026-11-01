@@ -1,7 +1,7 @@
 @model Project
 @{ ViewData["Title"] = "Новий проєкт"; }
 <h1 class="h3">Новий проєкт</h1>
-<form asp-action="Create" method="post">
+<form asp-action="Create" method="post" enctype="multipart/form-data">
     <partial name="_Form" />
     <button class="btn btn-primary">Зберегти</button>
     <a asp-action="Index" class="btn btn-link">Скасувати</a>
