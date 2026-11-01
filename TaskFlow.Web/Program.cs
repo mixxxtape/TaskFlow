@@ -9,6 +9,13 @@ builder.Services.AddControllersWithViews(o =>
     o.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true)
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
+builder.Services.AddWebEncoders(o =>
+    o.TextEncoderSettings = new TextEncoderSettings(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic));
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+    c.DocInclusionPredicate((_, api) => api.RelativePath?.StartsWith("api/") == true));
+
 builder.Services.AddDbContext<AppDbContext>(o =>
     o.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
@@ -17,11 +24,6 @@ builder.Services.AddScoped<IFileStorage>(sp =>
     var env = sp.GetRequiredService<IWebHostEnvironment>();
     return new LocalFileStorage(env.WebRootPath ?? Path.Combine(env.ContentRootPath, "wwwroot"));
 });
-
-
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-    c.DocInclusionPredicate((_, api) => api.RelativePath?.StartsWith("api/") == true));
 
 var app = builder.Build();
 

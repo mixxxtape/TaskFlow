@@ -4,8 +4,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - TaskFlow</title>
+    @if (!IsSectionDefined("Head"))
+    {
+        <meta name="description" content="TaskFlow — простий трекер проєктів і завдань." />
+    }
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Head", required: false)
 </head>
 <body>
     <header>
@@ -17,6 +22,7 @@
                     <li class="nav-item"><a class="nav-link" asp-controller="Tasks" asp-action="Index">Завдання</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Users" asp-action="Index">Користувачі</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Labels" asp-action="Index">Мітки</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Stats" asp-action="Index">Статистика</a></li>
                 </ul>
             </div>
         </nav>
