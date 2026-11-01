@@ -1,33 +1,178 @@
-@model Project
-@{ ViewData["Title"] = Model.Name; }
-<div class="d-flex justify-content-between align-items-center mb-2">
-    <h1 class="h3 m-0">@Model.Name</h1>
-    <div>
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Редагувати</a>
-        <a asp-controller="Tasks" asp-action="Create" asp-route-projectId="@Model.Id" class="btn btn-primary">Додати завдання</a>
+@model ProjectLandingViewModel
+@using TaskFlow.Web.Services
+@{
+    var proj = Model.Project;
+    ViewData["Title"] = proj.Name;
+    var statuses = new[] { ItemStatus.ToDo, ItemStatus.InProgress, ItemStatus.Done };
+}
+@section Head {
+    <meta name="description" content="@Model.MetaDescription" />
+    <link rel="canonical" href="@Model.CanonicalUrl" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="@proj.Name - TaskFlow" />
+    <meta property="og:description" content="@Model.MetaDescription" />
+    <meta property="og:url" content="@Model.CanonicalUrl" />
+    @if (Model.ImageUrl != null)
+    {
+        <meta property="og:image" content="@Model.ImageUrl" />
+    }
+    <meta name="twitter:card" content="@(Model.ImageUrl != null ? "summary_large_image" : "summary")" />
+    <link rel="stylesheet" href="~/css/landing.css" asp-append-version="true" />
+    <script type="application/ld+json">@Html.Raw(Model.JsonLd)</script>
+}
+
+<nav id="landingNav" class="navbar navbar-expand bg-body-tertiary sticky-top border-bottom landing-nav" aria-label="Розділи сторінки">
+    <div class="container">
+        <span class="navbar-brand">@proj.Name</span>
+        <ul class="navbar-nav ms-auto">
+            <li class="nav-item"><a class="nav-link" href="#about">Про проєкт</a></li>
+            <li class="nav-item"><a class="nav-link" href="#stats">Прогрес</a></li>
+            <li class="nav-item"><a class="nav-link" href="#tasks">Завдання</a></li>
+            <li class="nav-item"><a class="nav-link" href="#team">Команда</a></li>
+            <li class="nav-item"><a class="nav-link" href="#contact">Контакти</a></li>
+        </ul>
     </div>
-</div>
-<p class="text-muted">Створено @Model.CreatedAt.ToString("dd.MM.yyyy")</p>
-<p>@Model.Description</p>
-<h2 class="h5 mt-4">Завдання (@Model.Tasks.Count)</h2>
-@if (!Model.Tasks.Any())
-{
-    <p class="text-muted">У проєкті ще немає завдань.</p>
-}
-else
-{
-    <table class="table table-sm align-middle">
-        <thead><tr><th>Назва</th><th>Статус</th><th>Виконавець</th></tr></thead>
-        <tbody>
-        @foreach (var t in Model.Tasks.OrderBy(t => t.Status))
+</nav>
+
+<header id="about" class="row align-items-center g-4 py-5">
+    <div class="col-lg-6">
+        <h1 class="display-5 fw-bold">@proj.Name</h1>
+        <p class="lead" style="white-space:pre-wrap">@proj.Description</p>
+        <p class="text-muted">Створено @proj.CreatedAt.ToString("dd.MM.yyyy")</p>
+        <a href="#tasks" class="btn btn-primary btn-lg">Переглянути завдання</a>
+        <a asp-action="Edit" asp-route-id="@proj.Id" class="btn btn-outline-secondary btn-lg">Редагувати</a>
+    </div>
+    <div class="col-lg-6">
+        @if (Model.ImageUrl != null)
         {
-            <tr>
-                <td><a asp-controller="Tasks" asp-action="Details" asp-route-id="@t.Id">@t.Title</a></td>
-                <td>@Html.DisplayFor(_ => t.Status)</td>
-                <td>@(t.Assignee?.Name ?? "—")</td>
-            </tr>
+            <img src="@proj.CoverImageUrl" alt="Обкладинка проєкту «@proj.Name»" class="img-fluid rounded-3 shadow hero-img" width="800" height="450" />
         }
-        </tbody>
-    </table>
+        else
+        {
+            <div class="hero-placeholder rounded-3" role="img" aria-label="Проєкт без обкладинки"></div>
+        }
+    </div>
+</header>
+
+<section id="stats" class="py-5" aria-labelledby="stats-title">
+    <h2 id="stats-title" class="h3 mb-4">Прогрес</h2>
+    <div class="row g-4 align-items-center">
+        <div class="col-lg-7">
+            <div class="row g-3">
+                <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-num">@Model.Total</div><div class="stat-label">Усього</div></div></div>
+                @for (var i = 0; i < statuses.Length; i++)
+                {
+                    <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-num">@Model.StatusCounts[i]</div><div class="stat-label">@DisplayNames.Status(statuses[i])</div></div></div>
+                }
+            </div>
+            <div class="progress mt-4" role="progressbar" aria-label="Виконано" aria-valuenow="@Model.CompletionPercent" aria-valuemin="0" aria-valuemax="100" style="height:24px">
+                <div class="progress-bar bg-success" style="width:@(Model.CompletionPercent)%">@Model.CompletionPercent%</div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="chart-box"><canvas id="statusChart" aria-label="Діаграма завдань за статусами" role="img"></canvas></div>
+        </div>
+    </div>
+</section>
+
+<section id="tasks" class="py-5" aria-labelledby="tasks-title">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 id="tasks-title" class="h3 m-0">Завдання</h2>
+        <a asp-controller="Tasks" asp-action="Create" asp-route-projectId="@proj.Id" class="btn btn-primary">Додати завдання</a>
+    </div>
+    <div class="row g-4">
+        @foreach (var status in statuses)
+        {
+            var items = Model.Tasks.Where(t => t.Status == status).ToList();
+            <div class="col-md-4">
+                <h3 class="h5">@DisplayNames.Status(status) <span class="badge text-bg-secondary">@items.Count</span></h3>
+                @if (!items.Any())
+                {
+                    <p class="text-muted">Немає завдань.</p>
+                }
+                @foreach (var t in items)
+                {
+                    <article class="card mb-3 task-card">
+                        <div class="card-body">
+                            <h4 class="h6 card-title"><a asp-controller="Tasks" asp-action="Details" asp-route-id="@t.Id">@t.Title</a></h4>
+                            <p class="card-text small text-muted mb-2">
+                                @DisplayNames.Priority(t.Priority)
+                                @if (t.Assignee != null) { <text> · @t.Assignee.Name</text> }
+                                @if (t.DueDate != null) { <text> · до @t.DueDate.Value.ToString("dd.MM.yyyy")</text> }
+                            </p>
+                            @foreach (var l in t.Labels)
+                            {
+                                <span class="badge" style="background-color:@l.Color">@l.Name</span>
+                            }
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+<section id="team" class="py-5" aria-labelledby="team-title">
+    <h2 id="team-title" class="h3 mb-4">Команда</h2>
+    @if (!Model.Team.Any())
+    {
+        <p class="text-muted">Виконавців ще не призначено.</p>
+    }
+    <div class="row g-3">
+        @foreach (var u in Model.Team)
+        {
+            <div class="col-6 col-md-3 text-center">
+                @if (!string.IsNullOrEmpty(u.AvatarUrl))
+                {
+                    <img src="@u.AvatarUrl" alt="Аватар @u.Name" class="avatar" width="72" height="72" loading="lazy" />
+                }
+                else
+                {
+                    <div class="avatar avatar-initial" aria-hidden="true">@u.Name.Substring(0, 1).ToUpperInvariant()</div>
+                }
+                <div class="mt-2 fw-medium">@u.Name</div>
+            </div>
+        }
+    </div>
+</section>
+
+<section id="contact" class="py-5" aria-labelledby="contact-title">
+    <h2 id="contact-title" class="h3 mb-3">Контакти</h2>
+    @if (!string.IsNullOrEmpty(proj.ContactEmail))
+    {
+        <p>Питання щодо проєкту «@proj.Name»? Напишіть нам: <a href="mailto:@proj.ContactEmail">@proj.ContactEmail</a></p>
+    }
+    else
+    {
+        <p class="text-muted">Контакт ще не вказано.</p>
+    }
+</section>
+
+<aside class="contact-bar fixed-bottom text-white py-2" aria-label="Контакти проєкту">
+    <div class="container d-flex justify-content-between align-items-center gap-3">
+        <span class="text-truncate">@proj.Name</span>
+        @if (!string.IsNullOrEmpty(proj.ContactEmail))
+        {
+            <a class="btn btn-warning btn-sm" href="mailto:@proj.ContactEmail">Написати: @proj.ContactEmail</a>
+        }
+        else
+        {
+            <a class="btn btn-outline-light btn-sm" asp-action="Edit" asp-route-id="@proj.Id">Додати контакт</a>
+        }
+    </div>
+</aside>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>
+        new Chart(document.getElementById('statusChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['До виконання', 'У роботі', 'Виконано'],
+                datasets: [{ data: @Json.Serialize(Model.StatusCounts), backgroundColor: ['#6c757d', '#0d6efd', '#198754'] }]
+            },
+            options: { plugins: { legend: { position: 'bottom' } } }
+        });
+        new bootstrap.ScrollSpy(document.body, { target: '#landingNav', rootMargin: '0px 0px -40%' });
+    </script>
 }
-<a asp-action="Index">← До списку</a>

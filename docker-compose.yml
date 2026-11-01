@@ -24,7 +24,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      ConnectionStrings__Default: "Host=db;Port=5432;Database=taskflow;Username=postgres;Password=dasha2007"
+      ConnectionStrings__Default: "Host=localhost;Port=5432;Database=taskflow;Username=postgres;Password=dasha2007"
       MigrateOnStartup: "true"
     ports:
       - "8080:8080"

@@ -10,3 +10,19 @@
     <textarea asp-for="Description" class="form-control" rows="4"></textarea>
     <span asp-validation-for="Description" class="text-danger"></span>
 </div>
+<div class="mb-3">
+    <label asp-for="ContactEmail" class="form-label"></label>
+    <input asp-for="ContactEmail" class="form-control" />
+    <span asp-validation-for="ContactEmail" class="text-danger"></span>
+    <div class="form-text">Показується на лендінгу проєкту у фіксованій панелі контактів.</div>
+</div>
+<div class="mb-3">
+    <label for="cover" class="form-label">Обкладинка (фото)</label>
+    <input id="cover" name="cover" type="file" accept="image/png,image/jpeg,image/gif" class="form-control" />
+    @Html.ValidationMessage("cover", new { @class = "text-danger" })
+    @if (!string.IsNullOrEmpty(Model.CoverImageUrl))
+    {
+        <div class="mt-2"><img src="@Model.CoverImageUrl" alt="Поточна обкладинка" class="img-thumbnail" style="max-height:120px" /></div>
+        <div class="form-text">Новий файл замінить поточну обкладинку.</div>
+    }
+</div>
