@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using TaskFlow.Web.Data;
 using TaskFlow.Web.Services;
 using System.Text.Json.Serialization;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +26,8 @@ builder.Services.AddScoped<IFileStorage>(sp =>
     var env = sp.GetRequiredService<IWebHostEnvironment>();
     return new LocalFileStorage(env.WebRootPath ?? Path.Combine(env.ContentRootPath, "wwwroot"));
 });
+
+builder.Services.AddScoped<StatsService>(); 
 
 var app = builder.Build();
 
