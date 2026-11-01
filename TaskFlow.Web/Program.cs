@@ -24,6 +24,16 @@ builder.Services.AddSwaggerGen(c =>
     c.DocInclusionPredicate((_, api) => api.RelativePath?.StartsWith("api/") == true));
 
 var app = builder.Build();
+
+if (builder.Configuration.GetValue<bool>("MigrateOnStartup"))
+{
+    using var scope = app.Services.CreateScope();
+
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    db.Database.Migrate();
+}
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
