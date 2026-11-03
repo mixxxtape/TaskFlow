@@ -12,11 +12,16 @@ public class TasksController : Controller
 {
     private readonly AppDbContext _db;
     private readonly IFileStorage _storage;
+    private readonly INotifier? _notifier;
 
-    public TasksController(AppDbContext db, IFileStorage storage)
+    public TasksController(
+        AppDbContext db,
+        IFileStorage storage,
+        INotifier? notifier = null)
     {
         _db = db;
         _storage = storage;
+        _notifier = notifier;
     }
 
     public async Task<IActionResult> Index(int? projectId, ItemStatus? status, string? q)
@@ -87,6 +92,10 @@ public class TasksController : Controller
 
         _db.Tasks.Add(task);
         await _db.SaveChangesAsync();
+
+        if (_notifier is not null)
+            await _notifier.NotifyAsync($"Нова задача #{task.Id}: {task.Title}");
+
         return RedirectToAction(nameof(Index));
     }
 
@@ -196,10 +205,14 @@ public class TasksController : Controller
         t.AssigneeId = vm.AssigneeId;
     }
 
-    private async Task LoadLookups()
+    private async Task LoadLookups(int selectedProjectId = 0)
     {
-        ViewBag.Projects = new SelectList(await _db.Projects.OrderBy(p => p.Name).ToListAsync(), "Id", "Name");
+        ViewBag.Projects = new SelectList(
+            await _db.Projects.Where(p => p.Id == selectedProjectId).ToListAsync(),
+            "Id", "Name", selectedProjectId);
         ViewBag.Users = new SelectList(await _db.Users.OrderBy(u => u.Name).ToListAsync(), "Id", "Name");
         ViewBag.Labels = new MultiSelectList(await _db.Labels.OrderBy(l => l.Name).ToListAsync(), "Id", "Name");
     }
+
+
 }

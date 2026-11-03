@@ -26,6 +26,8 @@ services:
     environment:
       ConnectionStrings__Default: "Host=db;Port=5432;Database=taskflow;Username=postgres;Password=dasha2007"
       MigrateOnStartup: "true"
+      Telegram__BotToken: "8968977509:AAH66A10CwGqteW_lHQNF7l104WueiXPVTY"
+      Telegram__ChatId: "1096963468"
     ports:
       - "8080:8080"
     volumes:

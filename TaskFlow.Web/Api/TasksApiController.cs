@@ -17,11 +17,16 @@ public class TasksApiController : ControllerBase
 
     private readonly AppDbContext _db;
     private readonly IFileStorage _storage;
+    private readonly INotifier? _notifier;
 
-    public TasksApiController(AppDbContext db, IFileStorage storage)
+    public TasksApiController(
+        AppDbContext db,
+        IFileStorage storage,
+        INotifier? notifier = null)
     {
         _db = db;
         _storage = storage;
+        _notifier = notifier;
     }
 
     [HttpGet]
@@ -61,6 +66,9 @@ public class TasksApiController : ControllerBase
         task.Labels = await _db.Labels.Where(l => input.LabelIds.Contains(l.Id)).ToListAsync();
         _db.Tasks.Add(task);
         await _db.SaveChangesAsync();
+
+        if (_notifier is not null)
+            await _notifier.NotifyAsync($"Нова задача #{task.Id}: {task.Title}");
 
         var dto = await _db.Tasks.Where(t => t.Id == task.Id).Select(ToDto).SingleAsync();
         return CreatedAtAction(nameof(Get), new { id = task.Id }, dto);
@@ -170,4 +178,6 @@ public class TasksApiController : ControllerBase
         t.ProjectId = input.ProjectId;
         t.AssigneeId = input.AssigneeId;
     }
+
+
 }
