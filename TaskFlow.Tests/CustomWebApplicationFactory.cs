@@ -15,6 +15,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     //налаштування тестового середовища: заміна підключення до бази даних на SQLite і створення таблиці перед виконанням тестів
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+
         _connection.Open();
         builder.ConfigureServices(services =>
         {
@@ -25,6 +26,8 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             foreach (var d in toRemove) services.Remove(d);
 
             services.AddDbContext<AppDbContext>(o => o.UseSqlite(_connection));
+
+            services.AddSingleton<TaskFlow.Web.Services.INotifier, TaskFlow.Tests.FakeNotifier>();
 
             using var provider = services.BuildServiceProvider();
             using var scope = provider.CreateScope();

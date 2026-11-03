@@ -27,7 +27,11 @@ builder.Services.AddScoped<IFileStorage>(sp =>
     return new LocalFileStorage(env.WebRootPath ?? Path.Combine(env.ContentRootPath, "wwwroot"));
 });
 
-builder.Services.AddScoped<StatsService>(); 
+builder.Services.AddScoped<StatsService>();
+
+var telegram = builder.Configuration.GetSection("Telegram").Get<TelegramOptions>() ?? new TelegramOptions();
+builder.Services.AddSingleton(telegram);
+builder.Services.AddHttpClient<INotifier, TelegramNotifier>();
 
 var app = builder.Build();
 
