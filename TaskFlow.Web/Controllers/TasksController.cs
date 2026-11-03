@@ -196,9 +196,11 @@ public class TasksController : Controller
         t.AssigneeId = vm.AssigneeId;
     }
 
-    private async Task LoadLookups()
+    private async Task LoadLookups(int selectedProjectId = 0)
     {
-        ViewBag.Projects = new SelectList(await _db.Projects.OrderBy(p => p.Name).ToListAsync(), "Id", "Name");
+        ViewBag.Projects = new SelectList(
+            await _db.Projects.Where(p => p.Id == selectedProjectId).ToListAsync(),
+            "Id", "Name", selectedProjectId);
         ViewBag.Users = new SelectList(await _db.Users.OrderBy(u => u.Name).ToListAsync(), "Id", "Name");
         ViewBag.Labels = new MultiSelectList(await _db.Labels.OrderBy(l => l.Name).ToListAsync(), "Id", "Name");
     }
