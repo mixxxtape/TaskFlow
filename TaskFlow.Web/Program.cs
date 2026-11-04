@@ -4,6 +4,9 @@ using TaskFlow.Web.Services;
 using System.Text.Json.Serialization;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +31,35 @@ builder.Services.AddScoped<IFileStorage>(sp =>
 });
 
 builder.Services.AddScoped<StatsService>();
+
+builder.Services.AddScoped<UserRegistrar>();
+
+var googleId = builder.Configuration["Authentication:Google:ClientId"];
+var googleSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+
+builder.Services.AddAuthentication(o =>
+{
+    o.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    o.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+})
+.AddCookie()
+.AddGoogle(o =>
+{
+    o.ClientId = string.IsNullOrWhiteSpace(googleId) ? "not-configured" : googleId;
+    o.ClientSecret = string.IsNullOrWhiteSpace(googleSecret) ? "not-configured" : googleSecret;
+
+    o.Events.OnCreatingTicket = async ctx =>
+    {
+        var email = ctx.Principal?.FindFirst(ClaimTypes.Email)?.Value;
+        if (email is null) return;
+
+        var registrar = ctx.HttpContext.RequestServices.GetRequiredService<UserRegistrar>();
+        await registrar.EnsureUserAsync(
+            email,
+            ctx.Principal!.FindFirst(ClaimTypes.Name)?.Value,
+            ctx.Principal.FindFirst("urn:google:picture")?.Value);
+    };
+});
 
 var telegram = builder.Configuration.GetSection("Telegram").Get<TelegramOptions>() ?? new TelegramOptions();
 builder.Services.AddSingleton(telegram);
@@ -56,6 +88,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
