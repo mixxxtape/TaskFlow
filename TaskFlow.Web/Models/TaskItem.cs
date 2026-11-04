@@ -14,7 +14,7 @@ public class TaskItem
 
     public ItemStatus Status { get; set; } = ItemStatus.ToDo;
     public Priority Priority { get; set; } = Priority.Medium;
-    public DateTime? DueDate { get; set; }
+    public DateTime? DueDate { get; set; }                                                                                                                                                                                                                                      
 
     public string? AttachmentUrl { get; set; }
 

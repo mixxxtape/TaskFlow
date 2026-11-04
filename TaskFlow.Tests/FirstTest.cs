@@ -12,7 +12,6 @@ public class FirstTest : IClassFixture<CustomWebApplicationFactory>
     [InlineData("/")]
     [InlineData("/Projects")]
     [InlineData("/Tasks")]
-    [InlineData("/Tasks/Create")]
     [InlineData("/Projects/Create")]
     [InlineData("/Users")]
     [InlineData("/Labels")]
@@ -35,4 +34,5 @@ public class FirstTest : IClassFixture<CustomWebApplicationFactory>
         var response = await client.GetAsync(url);
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
+
 }

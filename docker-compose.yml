@@ -1,4 +1,3 @@
-
 services:
   db:
     image: postgres:16
@@ -24,10 +23,10 @@ services:
       db:
         condition: service_healthy
     environment:
-      ConnectionStrings__Default: "Host=db;Port=5432;Database=taskflow;Username=postgres;Password=dasha2007"
-      MigrateOnStartup: "true"
-      Telegram__BotToken: "8968977509:AAH66A10CwGqteW_lHQNF7l104WueiXPVTY"
-      Telegram__ChatId: "1096963468"
+      - ConnectionStrings__Default=Host=db;Port=5432;Database=taskflow;Username=postgres;Password=dasha2007
+      - MigrateOnStartup=true
+      - Telegram__BotToken=${TELEGRAM_BOT_TOKEN}
+      - Telegram__ChatId=${TELEGRAM_CHAT_ID}
     ports:
       - "8080:8080"
     volumes:

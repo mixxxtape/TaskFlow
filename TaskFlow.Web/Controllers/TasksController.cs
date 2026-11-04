@@ -5,9 +5,11 @@ using TaskFlow.Web.Data;
 using TaskFlow.Web.Models;
 using TaskFlow.Web.Services;
 using TaskFlow.Web.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TaskFlow.Web.Controllers;
 
+[Authorize]
 public class TasksController : Controller
 {
     private readonly AppDbContext _db;
@@ -24,6 +26,7 @@ public class TasksController : Controller
         _notifier = notifier;
     }
 
+    [AllowAnonymous]
     public async Task<IActionResult> Index(int? projectId, ItemStatus? status, string? q)
     {
         var query = _db.Tasks
@@ -45,6 +48,7 @@ public class TasksController : Controller
         return View(await query.OrderByDescending(t => t.Id).ToListAsync());
     }
 
+    [AllowAnonymous]
     public async Task<IActionResult> Details(int? id)
     {
         if (id is null) return NotFound();
