@@ -32,6 +32,9 @@ builder.Services.AddScoped<IFileStorage>(sp =>
 
 builder.Services.AddScoped<StatsService>();
 
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<ApiCache>();
+
 builder.Services.AddScoped<UserRegistrar>();
 
 var googleId = builder.Configuration["Authentication:Google:ClientId"];

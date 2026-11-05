@@ -15,15 +15,14 @@ public class TasksController : Controller
     private readonly AppDbContext _db;
     private readonly IFileStorage _storage;
     private readonly INotifier? _notifier;
+    private readonly ApiCache? _cache;
 
-    public TasksController(
-        AppDbContext db,
-        IFileStorage storage,
-        INotifier? notifier = null)
+    public TasksController(AppDbContext db, IFileStorage storage, INotifier? notifier = null, ApiCache? cache = null)
     {
         _db = db;
         _storage = storage;
         _notifier = notifier;
+        _cache = cache;
     }
 
     [AllowAnonymous]
@@ -97,6 +96,8 @@ public class TasksController : Controller
         _db.Tasks.Add(task);
         await _db.SaveChangesAsync();
 
+        _cache?.Invalidate();
+
         if (_notifier is not null)
             await _notifier.NotifyAsync($"Нова задача #{task.Id}: {task.Title}");
 
@@ -160,6 +161,7 @@ public class TasksController : Controller
         task.Labels.AddRange(labels);
 
         await _db.SaveChangesAsync();
+        _cache?.Invalidate();
         if (uploaded is not null) _storage.Delete(oldUrl);
         return RedirectToAction(nameof(Index));
     }
