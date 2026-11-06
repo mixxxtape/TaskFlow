@@ -42,7 +42,7 @@
                     <li class="nav-item"><a class="nav-link" asp-controller="Users" asp-action="Index">Користувачі</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Labels" asp-action="Index">Мітки</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Stats" asp-action="Index">Статистика</a></li>
-                    <li class="nav-item"><a class="nav-link" asp-controller="Game" asp-action="Index">Гра</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Game" asp-action="Index">Гра</a></li>  
                 </ul>
                 <ul class="navbar-nav">
                     @if (User.Identity?.IsAuthenticated == true)
@@ -74,6 +74,7 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="~/js/project-select.js" asp-append-version="true"></script>
     <script src="~/js/analytics.js" asp-append-version="true"></script>
+    <script src="~/js/file-preview.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)

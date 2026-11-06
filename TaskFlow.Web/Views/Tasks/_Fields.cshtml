@@ -49,6 +49,7 @@
 <div class="mb-3">
     <label asp-for="Attachment" class="form-label"></label>
     <input asp-for="Attachment" type="file" class="form-control" />
+    <div id="attachment-preview" class="mt-2"></div>
     <span asp-validation-for="Attachment" class="text-danger"></span>
     @if (!string.IsNullOrEmpty(Model.ExistingAttachmentUrl))
     {
