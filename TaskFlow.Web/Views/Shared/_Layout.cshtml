@@ -42,7 +42,8 @@
                     <li class="nav-item"><a class="nav-link" asp-controller="Users" asp-action="Index">Користувачі</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Labels" asp-action="Index">Мітки</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Stats" asp-action="Index">Статистика</a></li>
-                    <li class="nav-item"><a class="nav-link" asp-controller="Game" asp-action="Index">Гра</a></li>  
+                    <li class="nav-item"><a class="nav-link" asp-controller="Game" asp-action="Index">Гра</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Editor" asp-action="Index">Редактор</a></li>
                 </ul>
                 <ul class="navbar-nav">
                     @if (User.Identity?.IsAuthenticated == true)
