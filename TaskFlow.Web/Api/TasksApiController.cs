@@ -18,16 +18,18 @@ public class TasksApiController : ControllerBase
     private readonly AppDbContext _db;
     private readonly IFileStorage _storage;
     private readonly INotifier? _notifier;
+    private readonly ApiCache? _cache;
 
-    public TasksApiController(
-        AppDbContext db,
-        IFileStorage storage,
-        INotifier? notifier = null)
+    public TasksApiController(AppDbContext db, IFileStorage storage, INotifier? notifier = null, ApiCache? cache = null)
     {
         _db = db;
         _storage = storage;
         _notifier = notifier;
+        _cache = cache;
     }
+
+    private Task<T> Cached<T>(string key, Func<Task<T>> factory) =>
+        _cache is null ? factory() : _cache.GetOrCreateAsync(key, factory);
 
     [HttpGet]
     public async Task<ActionResult<PagedResult<TaskDto>>> List(
@@ -45,13 +47,15 @@ public class TasksApiController : ControllerBase
         }
 
         var projected = query.OrderBy(t => t.Id).Select(ToDto);
-        return await Paging.ToPagedAsync(projected, skip, limit, Request);
+        var key = $"tasks:list:{Request.Path}{Request.QueryString}";
+        return await Cached(key, () => Paging.ToPagedAsync(projected, skip, limit, Request));
     }
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<TaskDto>> Get(int id)
     {
-        var dto = await _db.Tasks.Where(t => t.Id == id).Select(ToDto).FirstOrDefaultAsync();
+        var dto = await Cached($"tasks:id:{id}",
+            () => _db.Tasks.Where(t => t.Id == id).Select(ToDto).FirstOrDefaultAsync());
         return dto is null ? NotFound() : dto;
     }
 
@@ -66,6 +70,7 @@ public class TasksApiController : ControllerBase
         task.Labels = await _db.Labels.Where(l => input.LabelIds.Contains(l.Id)).ToListAsync();
         _db.Tasks.Add(task);
         await _db.SaveChangesAsync();
+        _cache?.Invalidate();
 
         if (_notifier is not null)
             await _notifier.NotifyAsync($"Нова задача #{task.Id}: {task.Title}");
@@ -88,6 +93,7 @@ public class TasksApiController : ControllerBase
         task.Labels.Clear();
         task.Labels.AddRange(labels);
         await _db.SaveChangesAsync();
+        _cache?.Invalidate();
 
         return await _db.Tasks.Where(t => t.Id == id).Select(ToDto).SingleAsync();
     }
@@ -100,6 +106,7 @@ public class TasksApiController : ControllerBase
         var url = task.AttachmentUrl;
         _db.Tasks.Remove(task);
         await _db.SaveChangesAsync();
+        _cache?.Invalidate();
         _storage.Delete(url);
         return NoContent();
     }
@@ -118,6 +125,7 @@ public class TasksApiController : ControllerBase
         var old = task.AttachmentUrl;
         task.AttachmentUrl = url;
         await _db.SaveChangesAsync();
+        _cache?.Invalidate();
         _storage.Delete(old);
         return await _db.Tasks.Where(t => t.Id == id).Select(ToDto).SingleAsync();
     }
