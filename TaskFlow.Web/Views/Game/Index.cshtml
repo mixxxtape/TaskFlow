@@ -1,0 +1,10 @@
+@{ ViewData["Title"] = "Гра"; }
+
+<h1>Лови завдання</h1>
+<p>Керуй платформою стрілками ← → або мишкою. Піймай якомога більше завдань, у тебе 3 життя. Після програшу натисни пробіл або клікни по полю.</p>
+
+<canvas id="game" width="400" height="500" class="border bg-light"></canvas>
+
+@section Scripts {
+    <script src="~/js/game.js" asp-append-version="true"></script>
+}
