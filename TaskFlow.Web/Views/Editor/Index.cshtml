@@ -1,0 +1,36 @@
+@{ ViewData["Title"] = "Markdown-редактор"; }
+
+<style>
+    .md-row { display: flex; align-items: flex-start; gap: .5rem; padding: .25rem; border-top: 3px solid transparent; border-radius: .25rem; transition: background-color .2s, opacity .2s; }
+    .md-row:hover { background: #f8f9fa; }
+    .md-handle { cursor: grab; color: #adb5bd; user-select: none; padding-top: .4rem; }
+    .md-bullet { padding-top: .4rem; }
+    .md-text { flex: 1; border: 0; box-shadow: none; resize: none; overflow: hidden; background: transparent; }
+    .md-h1 .md-text { font-size: 2rem; font-weight: 700; }
+    .md-h2 .md-text { font-size: 1.5rem; font-weight: 600; }
+    .md-type { width: auto; opacity: 0; transition: opacity .2s; }
+    .md-row:hover .md-type { opacity: 1; }
+
+    .md-dragging { opacity: .35; }
+    .md-over { border-top-color: #0d6efd; background: #e7f1ff; }
+    .md-flash { animation: md-flash 1s ease-out; }
+    @@keyframes md-flash { from { background: #fff3cd; } to { background: transparent; } }
+</style>
+
+<h1>Markdown-редактор</h1>
+<p class="text-muted">
+    Enter — новий блок. <code>#&nbsp;</code>, <code>##&nbsp;</code>, <code>-&nbsp;</code> на початку блоку роблять заголовок чи пункт списку.
+    Backspace у порожньому блоці видаляє його. Перетягуй блоки за ⋮⋮. Документ зберігається в браузері автоматично.
+</p>
+
+<div id="md-editor" class="mb-3"></div>
+
+<button id="md-add" class="btn btn-outline-primary btn-sm">+ Блок</button>
+<button id="md-clear" class="btn btn-outline-danger btn-sm">Очистити</button>
+
+<h2 class="h5 mt-4">Markdown</h2>
+<pre id="md-output" class="border p-2 bg-light"></pre>
+
+@section Scripts {
+    <script src="~/js/md-editor.js" asp-append-version="true"></script>
+}
