@@ -18,10 +18,5 @@ public class EditorTests : IClassFixture<CustomWebApplicationFactory>
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Contains("id=\"md-editor\"", html);
         Assert.Contains("md-editor.js", html);
-
-        Console.WriteLine($"Status: {response.StatusCode}");
-        Console.WriteLine($"URL: {response.RequestMessage?.RequestUri}");
-        Console.WriteLine($"HTML: {html}");
-
     }
 }

@@ -1,0 +1,55 @@
+@{ ViewData["Title"] = "Живі події"; }
+
+<h1>Порівняння способів зв'язку</h1>
+<p class="text-muted">
+    Обери спосіб, натисни «Старт» і кілька разів «Надіслати тестову подію».
+    Події також приходять, коли хтось створює нове завдання.
+</p>
+
+<div class="mb-3">
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="mode" id="m-poll" value="polling">
+        <label class="form-check-label" for="m-poll">Polling (кожні 2 с)</label>
+    </div>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="mode" id="m-long" value="longpolling">
+        <label class="form-check-label" for="m-long">Long Polling</label>
+    </div>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="mode" id="m-ws" value="websocket" checked>
+        <label class="form-check-label" for="m-ws">WebSocket</label>
+    </div>
+</div>
+
+<button id="live-start" class="btn btn-primary btn-sm">Старт</button>
+<button id="live-stop" class="btn btn-outline-secondary btn-sm">Стоп</button>
+<button id="live-ping" class="btn btn-outline-success btn-sm">Надіслати тестову подію</button>
+<span id="live-status" class="ms-2 text-muted">Не запущено</span>
+
+<table class="table table-sm w-auto mt-3">
+    <tr><th>HTTP-запитів</th><td id="st-requests">0</td></tr>
+    <tr><th>Байтів (HTTP)</th><td id="st-bytes">0</td></tr>
+    <tr><th>Отримано подій</th><td id="st-events">0</td></tr>
+    <tr><th>Середня затримка</th><td id="st-latency">—</td></tr>
+</table>
+
+<h2 class="h5">Події</h2>
+<ul id="live-log" class="list-group mb-4"></ul>
+
+<h2 class="h5">Порівняння</h2>
+<table class="table table-bordered table-sm">
+    <thead><tr><th></th><th>Polling</th><th>Long Polling</th><th>WebSocket</th></tr></thead>
+    <tbody>
+        <tr><td>Як працює</td><td>клієнт питає сервер кожні N секунд</td><td>запит висить, поки не з'явиться подія</td><td>одне постійне двостороннє з'єднання</td></tr>
+        <tr><td>Затримка</td><td>до N секунд</td><td>майже миттєво</td><td>майже миттєво</td></tr>
+        <tr><td>Кількість запитів</td><td>багато, більшість порожні</td><td>один на кожну подію або тайм-аут</td><td>одне підключення</td></tr>
+        <tr><td>Накладні витрати</td><td>HTTP-заголовки в кожному запиті</td><td>заголовки на кожен цикл</td><td>малі кадри без заголовків</td></tr>
+        <tr><td>Навантаження на сервер</td><td>постійне</td><td>багато відкритих запитів</td><td>багато відкритих з'єднань</td></tr>
+        <tr><td>Складність</td><td>найпростіше</td><td>середня</td><td>потрібна підтримка сервера і проксі</td></tr>
+    </tbody>
+</table>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@@8.0.7/dist/browser/signalr.min.js"></script>
+    <script src="~/js/live.js" asp-append-version="true"></script>
+}
