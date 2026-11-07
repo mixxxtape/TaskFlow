@@ -150,7 +150,7 @@ public class LiveEndpointsTests : IClassFixture<CustomWebApplicationFactory>
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
-    //С13/C14: перевірка, що сторінка редактора відкривається і містить контейнер, у якому будуються блоки
+    //С13/C14: перевірка, що сторінка редактора відкривається і містить контейнер, у якому будуються блоки 
     public class LiveHubTests
     {
         //перевірка, що зміни документа хаб пересилає всім іншим клієнтам, а не відправнику
