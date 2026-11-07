@@ -149,4 +149,24 @@ public class LiveEndpointsTests : IClassFixture<CustomWebApplicationFactory>
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
+
+    //С13/C14: перевірка, що сторінка редактора відкривається і містить контейнер, у якому будуються блоки
+    public class LiveHubTests
+    {
+        //перевірка, що зміни документа хаб пересилає всім іншим клієнтам, а не відправнику
+        [Fact]
+        public async Task SendDocument_ForwardsToOthers()
+        {
+            var proxy = new Mock<IClientProxy>();
+            var clients = new Mock<IHubCallerClients>();
+            clients.Setup(c => c.Others).Returns(proxy.Object);
+            var hub = new LiveHub { Clients = clients.Object };
+
+            await hub.SendDocument("[{\"type\":\"p\",\"text\":\"hi\"}]");
+
+            proxy.Verify(p => p.SendCoreAsync("DocumentChanged",
+                It.Is<object?[]>(a => a.Length == 1 && (string)a[0]! == "[{\"type\":\"p\",\"text\":\"hi\"}]"),
+                default), Times.Once);
+        }
+    }
 }
