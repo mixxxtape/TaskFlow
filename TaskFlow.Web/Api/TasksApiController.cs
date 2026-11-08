@@ -19,13 +19,15 @@ public class TasksApiController : ControllerBase
     private readonly IFileStorage _storage;
     private readonly INotifier? _notifier;
     private readonly ApiCache? _cache;
+    private readonly ILiveBroadcaster? _live;
 
-    public TasksApiController(AppDbContext db, IFileStorage storage, INotifier? notifier = null, ApiCache? cache = null)
+    public TasksApiController(AppDbContext db, IFileStorage storage, INotifier? notifier = null, ApiCache? cache = null, ILiveBroadcaster? live = null)
     {
         _db = db;
         _storage = storage;
         _notifier = notifier;
         _cache = cache;
+        _live = live;
     }
 
     private Task<T> Cached<T>(string key, Func<Task<T>> factory) =>
@@ -74,6 +76,9 @@ public class TasksApiController : ControllerBase
 
         if (_notifier is not null)
             await _notifier.NotifyAsync($"Нова задача #{task.Id}: {task.Title}");
+
+        if (_live is not null)
+            await _live.PublishAsync($"Нова задача: {task.Title}");
 
         var dto = await _db.Tasks.Where(t => t.Id == task.Id).Select(ToDto).SingleAsync();
         return CreatedAtAction(nameof(Get), new { id = task.Id }, dto);

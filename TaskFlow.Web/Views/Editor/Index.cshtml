@@ -15,6 +15,12 @@
     .md-over { border-top-color: #0d6efd; background: #e7f1ff; }
     .md-flash { animation: md-flash 1s ease-out; }
     @@keyframes md-flash { from { background: #fff3cd; } to { background: transparent; } }
+
+    .md-remote { animation: md-remote 1.2s ease-out; }
+    @@keyframes md-remote {
+        from { background: #cfe2ff; transform: translateX(-14px); opacity: .4; }
+        to   { background: transparent; transform: none; opacity: 1; }
+}
 </style>
 
 <h1>Markdown-редактор</h1>
@@ -22,6 +28,8 @@
     Enter — новий блок. <code>#&nbsp;</code>, <code>##&nbsp;</code>, <code>-&nbsp;</code> на початку блоку роблять заголовок чи пункт списку.
     Backspace у порожньому блоці видаляє його. Перетягуй блоки за ⋮⋮. Документ зберігається в браузері автоматично.
 </p>
+
+<span id="md-sync-status" class="badge text-bg-secondary mb-2">Синхронізація: підключення…</span>
 
 <div id="md-editor" class="mb-3"></div>
 
@@ -32,5 +40,6 @@
 <pre id="md-output" class="border p-2 bg-light"></pre>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@@8.0.7/dist/browser/signalr.min.js"></script>
     <script src="~/js/md-editor.js" asp-append-version="true"></script>
 }

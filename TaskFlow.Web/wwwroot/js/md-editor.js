@@ -4,14 +4,15 @@
 
     var KEY = 'taskflow-md-editor';
     var output = document.getElementById('md-output');
+    var syncStatus = document.getElementById('md-sync-status'); // C13/C14: індикатор стану синхронізації
     var TYPES = { h1: 'Заголовок 1', h2: 'Заголовок 2', p: 'Параграф', li: 'Список' };
 
     var blocks = load();
     var dragFrom = null;
+    var connection = null; // C13/C14: з'єднання SignalR
 
     function newBlock(type, text) { return { type: type, text: text || '' }; }
 
-    //відновлення документа з localStorage
     function load() {
         try {
             var saved = JSON.parse(localStorage.getItem(KEY));
@@ -20,10 +21,16 @@
         return [newBlock('h1', 'Мій документ'), newBlock('p', '')];
     }
 
-    //автозбереження
-    function save() {
+    // C13/C14: локальне збереження документа без мережевої синхронізації
+    function persist() {
         try { localStorage.setItem(KEY, JSON.stringify(blocks)); } catch (e) { }
         output.textContent = toMarkdown();
+    }
+
+    // C13/C14: після локального збереження відправляємо зміни іншим клієнтам
+    function save() {
+        persist();
+        broadcast();
     }
 
     function toMarkdown() {
@@ -44,7 +51,8 @@
         el.style.height = el.scrollHeight + 'px';
     }
 
-    function render(focusIndex, flashIndex) {
+    // C13/C14: додано можливість підсвічувати декілька змінених блоків
+    function render(focusIndex, flashIndexes, flashClass) {
         root.innerHTML = '';
 
         blocks.forEach(function (b, i) {
@@ -88,7 +96,6 @@
             del.textContent = '×';
             row.appendChild(del);
 
-            //редагування 
             text.addEventListener('input', function () {
                 var v = text.value;
                 if (b.type === 'p') {
@@ -128,7 +135,7 @@
                 render();
             });
 
-            //drag-and-drop (F3) 
+            //drag-and-drop (F3)
             handle.addEventListener('mousedown', function () { row.draggable = true; });
 
             row.addEventListener('dragstart', function (e) {
@@ -153,7 +160,7 @@
                 blocks.splice(i, 0, moved);
                 dragFrom = null;
                 save();
-                render(null, i);
+                render(null, [i]);
             });
 
             root.appendChild(row);
@@ -163,7 +170,81 @@
 
         var rows = root.querySelectorAll('.md-row');
         if (focusIndex != null && rows[focusIndex]) rows[focusIndex].querySelector('textarea').focus();
-        if (flashIndex != null && rows[flashIndex]) rows[flashIndex].classList.add('md-flash');
+        // C13/C14: підсвічування блоків, які змінилися на іншому пристрої
+        if (flashIndexes) {
+            flashIndexes.forEach(function (i) {
+                if (rows[i]) rows[i].classList.add(flashClass || 'md-flash');
+            });
+        }
+    }
+
+    // C13/C14: відображення стану синхронізації
+    function setSync(text, cls) {
+        if (!syncStatus) return;
+        syncStatus.textContent = text;
+        syncStatus.className = 'badge mb-2 text-bg-' + (cls || 'secondary');
+    }
+
+    // C13/C14: відправлення документа через SignalR
+    function broadcast() {
+        if (connection && connection.state === signalR.HubConnectionState.Connected) {
+            connection.invoke('SendDocument', JSON.stringify(blocks)).catch(function () { });
+        }
+    }
+
+    // C13/C14: перевірка отриманого документа перед застосуванням
+    function clean(incoming) {
+        if (!Array.isArray(incoming) || !incoming.length) return null;
+        return incoming.map(function (b) {
+            return { type: TYPES[b && b.type] ? b.type : 'p', text: String((b && b.text) || '') };
+        });
+    }
+
+    // C13/C14: отримання документа, зміненого іншим клієнтом
+    function applyRemote(json) {
+        var incoming;
+        try { incoming = clean(JSON.parse(json)); } catch (e) { return; }
+        if (!incoming) return;
+
+        // які блоки змінилися (для анімації)
+        var changed = [];
+        incoming.forEach(function (b, i) {
+            var old = blocks[i];
+            if (!old || old.type !== b.type || old.text !== b.text) changed.push(i);
+        });
+        if (!changed.length && incoming.length === blocks.length) return;
+
+        // запам'ятовуємо, де стояв курсор, щоб не збити друк
+        var active = document.activeElement;
+        var row = active && active.closest ? active.closest('.md-row') : null;
+        var focusIndex = row ? Array.prototype.indexOf.call(root.children, row) : null;
+        var caret = active && active.selectionStart != null ? active.selectionStart : null;
+
+        blocks = incoming;
+        persist();  
+        render(focusIndex, changed, 'md-remote');
+
+        if (focusIndex != null && caret != null && root.children[focusIndex]) {
+            var ta = root.children[focusIndex].querySelector('textarea');
+            if (ta) ta.setSelectionRange(caret, caret);
+        }
+        setSync('Отримано зміни з іншого пристрою', 'primary');
+        setTimeout(function () { setSync('Синхронізація: увімкнена', 'success'); }, 2000);
+    }
+
+    if (window.signalR) {
+        connection = new signalR.HubConnectionBuilder()
+            .withUrl('/hubs/live')
+            .withAutomaticReconnect()
+            .build();
+        connection.on('DocumentChanged', applyRemote);
+        connection.onreconnected(function () { setSync('Синхронізація: увімкнена', 'success'); });
+        connection.onclose(function () { setSync('Синхронізація: відключено', 'danger'); });
+        connection.start()
+            .then(function () { setSync('Синхронізація: увімкнена', 'success'); })
+            .catch(function () { setSync('Синхронізація: недоступна', 'danger'); });
+    } else {
+        setSync('Синхронізація: недоступна', 'danger');
     }
 
     document.getElementById('md-add').addEventListener('click', function () {
@@ -179,6 +260,6 @@
         render(0);
     });
 
-    save();
+    persist();
     render();
 })();

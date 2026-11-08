@@ -16,13 +16,16 @@ public class TasksController : Controller
     private readonly IFileStorage _storage;
     private readonly INotifier? _notifier;
     private readonly ApiCache? _cache;
+    private readonly ILiveBroadcaster? _live;
 
-    public TasksController(AppDbContext db, IFileStorage storage, INotifier? notifier = null, ApiCache? cache = null)
+    public TasksController(AppDbContext db, IFileStorage storage, INotifier? notifier = null,
+        ApiCache? cache = null, ILiveBroadcaster? live = null)
     {
         _db = db;
         _storage = storage;
         _notifier = notifier;
         _cache = cache;
+        _live = live;
     }
 
     [AllowAnonymous]
@@ -100,6 +103,9 @@ public class TasksController : Controller
 
         if (_notifier is not null)
             await _notifier.NotifyAsync($"Нова задача #{task.Id}: {task.Title}");
+
+        if (_live is not null)
+            await _live.PublishAsync($"Нова задача: {task.Title}");
 
         return RedirectToAction(nameof(Index));
     }
