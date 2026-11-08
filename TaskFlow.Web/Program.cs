@@ -38,6 +38,7 @@ builder.Services.AddSingleton<ApiCache>();
 builder.Services.AddSignalR(o => o.MaximumReceiveMessageSize = 1_000_000); 
 builder.Services.AddSingleton<LiveState>();
 builder.Services.AddSingleton<ILiveBroadcaster, LiveBroadcaster>();
+builder.Services.AddSingleton<BoardState>();
 
 builder.Services.AddScoped<UserRegistrar>();
 
@@ -103,6 +104,7 @@ app.MapControllerRoute(
     pattern: "{controller=Projects}/{action=Index}/{id?}");
 
 app.MapHub<LiveHub>("/hubs/live");
+app.MapHub<BoardHub>("/hubs/board");
 
 app.Run();
 

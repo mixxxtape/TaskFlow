@@ -1,0 +1,20 @@
+@{ ViewData["Title"] = "Спільна дошка"; }
+
+<h1>Спільна дошка</h1>
+<p class="text-muted">Усе, що малюєш, одразу бачать інші, хто відкрив цю сторінку.</p>
+
+<div class="d-flex align-items-center gap-3 mb-2 flex-wrap">
+    <label>Колір <input type="color" id="board-color" value="#0d6efd" class="form-control form-control-color d-inline-block align-middle"></label>
+    <label>Товщина <input type="range" id="board-size" min="1" max="30" value="4" class="align-middle"></label>
+    <button id="board-clear" class="btn btn-outline-danger btn-sm">Очистити для всіх</button>
+    <span id="board-status" class="badge text-bg-secondary">Підключення…</span>
+    <span>Онлайн: <strong id="board-users">0</strong></span>
+</div>
+
+<canvas id="board" width="900" height="500"
+        style="border:1px solid #ced4da; max-width:100%; height:auto; touch-action:none; cursor:crosshair; background:#fff"></canvas>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@@8.0.7/dist/browser/signalr.min.js"></script>
+    <script src="~/js/board.js" asp-append-version="true"></script>
+}
